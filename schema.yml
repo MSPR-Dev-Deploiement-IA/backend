@@ -5,6 +5,52 @@ info:
 servers:
   - url: https://api.example.com/v1
 paths:
+  /users:
+    post:
+      summary: Créer un nouvel utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      summary: Authentification de l'utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Utilisateur authentifié avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
   /plants:
     get:
       summary: Récupérer la liste des plantes
@@ -87,6 +133,38 @@ paths:
 
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    Location:
+      type: object
+      properties:
+        address:
+          type: string
+        zip:
+          type: string
+        city:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+
     Plant:
       type: object
       properties:
@@ -98,16 +176,4 @@ components:
         species:
           type: string
         location:
-          type: string
-        imageUrl:
-          type: string
-          format: uri
-        careTips:
-          type: array
-          items:
-            type: string
-      required:
-        - id
-        - name
-        - species
-        - location
+          $ref: '#/components/schemas/Location'
