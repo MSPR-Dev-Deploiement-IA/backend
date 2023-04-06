@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: A'rosa-je API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /plants:
+    get:
+      summary: Récupérer la liste des plantes
+      responses:
+        '200':
+          description: Liste des plantes récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plant'
+    post:
+      summary: Ajouter une nouvelle plante
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plant'
+      responses:
+        '201':
+          description: Plante ajoutée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+
+  /plants/{plantId}:
+    get:
+      summary: Récupérer une plante par son ID
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Plante récupérée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+    put:
+      summary: Mettre à jour une plante par son ID
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plant'
+      responses:
+        '200':
+          description: Plante mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+    delete:
+      summary: Supprimer une plante par son ID
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Plante supprimée avec succès
+
+components:
+  schemas:
+    Plant:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        species:
+          type: string
+        location:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        careTips:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - species
+        - location
