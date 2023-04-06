@@ -1,13 +1,15 @@
-openapi: 3.0.0
+openapi: "3.0.0"
 info:
-  title: A'rosa-je API
-  version: 1.0.0
+  title: "Plant Care API"
+  version: "1.0.0"
 servers:
-  - url: https://api.example.com/v1
+  - url: "http://localhost:8000"
+
+
 paths:
-  /users:
+  /api/auth/signup:
     post:
-      summary: Créer un nouvel utilisateur
+      summary: Inscription d'un utilisateur
       requestBody:
         required: true
         content:
@@ -21,10 +23,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '400':
+          description: Requête invalide
 
-  /auth/login:
+  /api/auth/login:
     post:
-      summary: Authentification de l'utilisateur
+      summary: Connexion de l'utilisateur
       requestBody:
         required: true
         content:
@@ -37,34 +41,88 @@ paths:
                   format: email
                 password:
                   type: string
+                  format: password
               required:
                 - email
                 - password
       responses:
         '200':
-          description: Utilisateur authentifié avec succès
+          description: Connexion réussie
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Identifiants incorrects
 
-  /plants:
+  /api/users/me:
     get:
-      summary: Récupérer la liste des plantes
+      summary: Récupération des informations de l'utilisateur connecté
       responses:
         '200':
-          description: Liste des plantes récupérée avec succès
+          description: Informations de l'utilisateur connecté
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Utilisateur non authentifié
+
+    put:
+      summary: Mise à jour des informations de l'utilisateur connecté
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Informations de l'utilisateur mises à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Requête invalide
+        '401':
+          description: Utilisateur non authentifié
+
+  /api/users/{userId}:
+    get:
+      summary: Récupération du profil et de l'historique des plantes d'un utilisateur
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Profil utilisateur et historique des plantes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Utilisateur introuvable
+
+  /api/plants:
+    get:
+      summary: Récupération de la liste des plantes à faire garder
+      responses:
+        '200':
+          description: Liste des plantes à faire garder
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Plant'
+
     post:
-      summary: Ajouter une nouvelle plante
+      summary: Ajout d'une nouvelle plante à faire garder
       requestBody:
         required: true
         content:
@@ -78,26 +136,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Plant'
+        '400':
+          description: Requête invalide
 
-  /plants/{plantId}:
+  /api/plants/{plantId}:
     get:
-      summary: Récupérer une plante par son ID
+      summary: Récupération des informations d'une plante spécifique
       parameters:
-        - name: plantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: plantId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
-          description: Plante récupérée avec succès
+          description: Informations de la plante spécifique
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Plant'
+        '404':
+          description: Plante introuvable
+
     put:
-      summary: Mettre à jour une plante par son ID
+      summary: Mise à jour des informations d'une plante spécifique
       parameters:
         - name: plantId
           in: path
@@ -113,13 +176,18 @@ paths:
               $ref: '#/components/schemas/Plant'
       responses:
         '200':
-          description: Plante mise à jour avec succès
+          description: Informations de la plante mises à jour
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Plant'
+        '400':
+          description: Requête invalide
+        '404':
+          description: Plante introuvable
+
     delete:
-      summary: Supprimer une plante par son ID
+      summary: Suppression d'une plante spécifique
       parameters:
         - name: plantId
           in: path
@@ -130,6 +198,88 @@ paths:
       responses:
         '204':
           description: Plante supprimée avec succès
+        '404':
+          description: Plante introuvable
+
+  /api/plants/{plantId}/photos:
+    post:
+      summary: Ajout d'une photo pour une plante spécifique
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photo:
+                  type: string
+                  format: binary
+              required:
+                - photo
+      responses:
+        '201':
+          description: Photo ajoutée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPhoto'
+        '400':
+          description: Requête invalide
+        '404':
+          description: Plante introuvable
+
+  /api/plants/{plantId}/advice:
+    get:
+      summary: Récupération des conseils pour une plante spécifique
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste des conseils pour la plante spécifique
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Advice'
+        '404':
+          description: Plante introuvable
+    post:
+      summary: Ajout d'un nouveau conseil pour une plante spécifique
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Advice'
+      responses:
+        '201':
+          description: Conseil ajouté avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advice'
+
+
 
 components:
   schemas:
@@ -142,28 +292,23 @@ components:
         email:
           type: string
           format: email
-        password:
-          type: string
         firstName:
           type: string
         lastName:
           type: string
-
-    Location:
-      type: object
-      properties:
-        address:
+        password:
           type: string
-        zip:
-          type: string
-        city:
-          type: string
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
+          format: password
+        plantsHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plant'
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+        - password
 
     Plant:
       type: object
@@ -173,7 +318,82 @@ components:
           format: int64
         name:
           type: string
-        species:
+        type:
           type: string
-        location:
-          $ref: '#/components/schemas/Location'
+        ownerId:
+          type: integer
+          format: int64
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlantPhoto'
+        advice:
+          type: array
+          items:
+            $ref: '#/components/schemas/Advice'
+      required:
+        - id
+        - name
+        - type
+        - ownerId
+
+    PlantPhoto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        plantId:
+          type: integer
+          format: int64
+        url:
+          type: string
+          format: uri
+      required:
+        - id
+        - plantId
+        - url
+
+    Advice:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        plantId:
+          type: integer
+          format: int64
+        authorId:
+          type: integer
+          format: int64
+        content:
+          type: string
+      required:
+        - id
+        - plantId
+        - authorId
+        - content
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        senderId:
+          type: integer
+          format: int64
+        recipientId:
+          type: integer
+          format: int64
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - senderId
+        - recipientId
+        - content
+        - timestamp
