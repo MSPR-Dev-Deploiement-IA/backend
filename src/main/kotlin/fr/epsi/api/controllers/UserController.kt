@@ -1,5 +1,6 @@
 package fr.epsi.api.controllers
 
+import fr.epsi.api.entities.User
 import fr.epsi.api.repositories.UserRepository
 import fr.epsi.api.services.UserService
 import org.springframework.http.HttpStatus
@@ -29,9 +30,9 @@ class UserController(
     }
 
     @PostMapping("/register")
-    fun register(@RequestBody credentials: Credentials): ResponseEntity<Any> {
+    fun register(@RequestBody credentials: Credentials): ResponseEntity<User> {
         val user = userService.registerUser(credentials.username, credentials.password)
-        return ResponseEntity.ok(user)
+        return ResponseEntity.status(HttpStatus.CREATED).body(user)
     }
 }
 
