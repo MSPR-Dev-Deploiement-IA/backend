@@ -1,5 +1,6 @@
 package fr.epsi.api.controllers
 
+import fr.epsi.api.entities.Role
 import fr.epsi.api.entities.User
 import fr.epsi.api.repositories.UserRepository
 import fr.epsi.api.services.UserService
@@ -15,15 +16,22 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 class UserController(
     private val userRepository: UserRepository,
-    private val userService: UserService
+    private val userService: UserService,
 ) {
+
+    data class Credentials(
+        val username: String,
+        val password: String,
+        val roles: Set<Role>
+    )
+
     @PostMapping("/login")
     fun login(@RequestBody credentials: Credentials): ResponseEntity<Any> {
         val user = userRepository.findByUsername(credentials.username)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
         if (BCrypt.checkpw(credentials.password, user.password)) {
-            return ResponseEntity.ok("Authenticated successfully")
+            return ResponseEntity.ok(user)
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
@@ -31,12 +39,8 @@ class UserController(
 
     @PostMapping("/register")
     fun register(@RequestBody credentials: Credentials): ResponseEntity<User> {
-        val user = userService.registerUser(credentials.username, credentials.password)
+        val user = userService.registerUser(credentials.username, credentials.password, credentials.roles)
         return ResponseEntity.status(HttpStatus.CREATED).body(user)
     }
 }
 
-data class Credentials(
-    val username: String,
-    val password: String
-)
