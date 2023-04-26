@@ -7,10 +7,12 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import fr.epsi.api.entities.CustomUserDetails
+import fr.epsi.api.repositories.UserRepository
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 
 class JwtAuthenticationFilter(
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val userRepository: UserRepository
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -36,7 +38,8 @@ class JwtAuthenticationFilter(
     }
 
     private fun tokenToAuthentication(token: String): Authentication {
-        val userDetails = CustomUserDetails(jwtTokenProvider.getUsername(token))
+        val user = userRepository.findByUsername(jwtTokenProvider.getUsername(token))
+        val userDetails = CustomUserDetails(user!!)
         return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 }
