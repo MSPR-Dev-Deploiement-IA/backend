@@ -2,9 +2,11 @@ package main
 
 import (
 	"backend/database"
+	"backend/handlers"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"log"
 )
 
 func main() {
@@ -13,17 +15,17 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	_, err = database.SetupDatabase()
+	db, err := database.SetupDatabase()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	router := gin.Default()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello, World!",
-		})
-	})
+	h := handlers.Newhandler(db)
+
+	router.GET("/", h.HelloHandler)
+	router.POST("/users", h.PostUser)
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for example)
+
 }
