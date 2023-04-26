@@ -3,11 +3,17 @@ package main
 import (
 	"backend/database"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"log"
 )
 
 func main() {
-	_, err := database.SetupDatabase()
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	_, err = database.SetupDatabase()
 	if err != nil {
 		log.Fatalln(err)
 	}

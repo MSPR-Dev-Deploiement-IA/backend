@@ -1,6 +1,7 @@
 package database
 
 import (
+	"backend/models"
 	"fmt"
 	"os"
 	"time"
@@ -24,12 +25,23 @@ func SetupDatabase() (*gorm.DB, error) {
 	for i := 0; i < 10; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
-			return db, nil
+			break
 		}
 
 		fmt.Printf("Failed to connect to database. Retrying in %d seconds...\n", i*5)
 		time.Sleep(time.Duration(i*5) * time.Second)
 	}
 
-	return nil, fmt.Errorf("failed to connect to database after 10 attempts: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database after 10 attempts: %w", err)
+	}
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		fmt.Printf("Failed to migrate database schema: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Println("Successfully migrated database schema")
+	return db, nil
 }
