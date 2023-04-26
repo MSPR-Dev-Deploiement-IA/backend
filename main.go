@@ -23,9 +23,16 @@ func main() {
 
 	h := handlers.Newhandler(db)
 
-	router.GET("/", h.HelloHandler)
-	router.POST("/users", h.PostUser)
+	router.POST("/register", h.Register)
+	router.POST("/login", h.Login)
+	router.POST("/refresh", h.Refresh)
+
+	api := router.Group("/api")
+	api.Use(h.Authorize())
+	{
+		api.GET("/hello", h.HelloHandler)
+		// Add more secured routes here
+	}
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for example)
-
 }
