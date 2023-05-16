@@ -8,10 +8,10 @@ import (
 
 type Message struct {
 	gorm.Model
-	SenderID    uint      `gorm:"not null"`
-	ReceiverID  uint      `gorm:"not null"`
-	MessageText string    `gorm:"type:varchar(255);not null"`
-	Timestamp   time.Time `gorm:"not null"`
+	SenderID    uint      `json:"sender_id" gorm:"not null"`
+	ReceiverID  uint      `json:"receiver_id" gorm:"not null"`
+	MessageText string    `json:"message_text" gorm:"type:varchar(255);not null"`
+	Timestamp   time.Time `json:"timestamp" gorm:"not null"`
 }
 
 type MessageRepository struct {
