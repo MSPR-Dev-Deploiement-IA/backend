@@ -6,9 +6,9 @@ import (
 
 type Photo struct {
 	gorm.Model
-	PlantID   uint   `gorm:"not null"`
-	UserID    uint   `gorm:"not null"`
-	PhotoFile string `gorm:"type:varchar(255);not null"`
+	PlantID   uint   `json:"plant_id" gorm:"not null"`
+	UserID    uint   `json:"user_id" gorm:"not null"`
+	PhotoFile string `json:"photo_file" gorm:"type:varchar(255);not null"`
 }
 
 type PhotoRepository struct {
