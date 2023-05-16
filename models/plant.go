@@ -6,11 +6,11 @@ import (
 
 type Plant struct {
 	gorm.Model
-	Name             string `gorm:"type:varchar(100);not null"`
-	Type             string `gorm:"type:varchar(100);not null"`
-	Description      string `gorm:"type:varchar(255);not null"`
-	CareInstructions string `gorm:"type:varchar(255);not null"`
-	UserID           uint   `gorm:"not null"`
+	Name             string `json:"name" gorm:"type:varchar(100);not null"`
+	Type             string `json:"type" gorm:"type:varchar(100);not null"`
+	Description      string `json:"description" gorm:"type:varchar(255);not null"`
+	CareInstructions string `json:"care_instructions" gorm:"type:varchar(255);not null"`
+	UserID           uint   `json:"user_id" gorm:"not null"`
 	PlantHistories   []PlantHistory
 	PlantAdvices     []PlantAdvice
 	Photos           []Photo
