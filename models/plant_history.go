@@ -8,11 +8,10 @@ import (
 
 type PlantHistory struct {
 	gorm.Model
-	PlantID   uint      `json:"plant_id"`
-	Caretaker User      `json:"caretaker"`
-	Owner     User      `json:"owner"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
+	PlantID   uint      `gorm:"not null"`
+	UserID    uint      `gorm:"not null"`
+	StartDate time.Time `gorm:"not null"`
+	EndDate   time.Time `gorm:"not null"`
 }
 
 func (p *PlantHistory) Save(db *gorm.DB) error {

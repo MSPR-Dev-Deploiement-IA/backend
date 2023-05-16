@@ -6,9 +6,14 @@ import (
 
 type Plant struct {
 	gorm.Model
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	OwnerID     uint   `json:"owner_id"`
+	Name             string `gorm:"type:varchar(100);not null"`
+	Type             string `gorm:"type:varchar(100);not null"`
+	Description      string `gorm:"type:varchar(255);not null"`
+	CareInstructions string `gorm:"type:varchar(255);not null"`
+	UserID           uint   `gorm:"not null"`
+	PlantHistories   []PlantHistory
+	PlantAdvices     []PlantAdvice
+	Photos           []Photo
 }
 
 func (p *Plant) Save(db *gorm.DB) error {
