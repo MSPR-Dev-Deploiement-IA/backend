@@ -7,13 +7,13 @@ import (
 
 type User struct {
 	gorm.Model
-	Name          string `gorm:"type:varchar(100);not null;json:"name"`
-	Email         string `gorm:"type:varchar(100);unique;not null;json:"email"`
-	Password      string `gorm:"not null;json:"password"`
-	RememberToken string
-	Location      Location
-	Plants        []Plant
-	Favorites     []Favorite
+	Name          string     `json:"name" gorm:"type:varchar(100);not null"`
+	Email         string     `json:"email" gorm:"type:varchar(100);unique;not null"`
+	Password      string     `json:"password" gorm:"not null"`
+	RememberToken string     `json:"remember_token"`
+	Location      Location   `json:"location"`
+	Plants        []Plant    `json:"plants"`
+	Favorites     []Favorite `json:"favorites"`
 }
 
 func (u *User) Save(db *gorm.DB) error {
