@@ -46,11 +46,3 @@ The application will be running on `http://localhost:8080`.
 
 - [Gin](https://github.com/gin-gonic/gin) - HTTP web framework written in Go
 - [GORM](https://gorm.io/) - Fantastic ORM library for Golang
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/yourusername/your-contributing-md-url) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
