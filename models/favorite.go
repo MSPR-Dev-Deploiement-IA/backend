@@ -6,8 +6,8 @@ import (
 
 type Favorite struct {
 	gorm.Model
-	UserID  uint `gorm:"not null"`
-	PlantID uint `gorm:"not null"`
+	UserID  uint `json:"user_id" gorm:"not null"`
+	PlantID uint `json:"plant_id" gorm:"not null"`
 }
 
 type FavoriteRepository struct {
