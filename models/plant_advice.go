@@ -6,9 +6,9 @@ import (
 
 type PlantAdvice struct {
 	gorm.Model
-	PlantID    uint   `gorm:"not null"`
-	UserID     uint   `gorm:"not null"`
-	AdviceText string `gorm:"type:varchar(255);not null"`
+	PlantID    uint   `json:"plant_id" gorm:"not null"`
+	UserID     uint   `json:"user_id" gorm:"not null"`
+	AdviceText string `json:"advice_text" gorm:"type:varchar(255);not null"`
 }
 
 type PlantAdviceRepository struct {
