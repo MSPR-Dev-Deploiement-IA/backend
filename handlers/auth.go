@@ -7,7 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func (h Handler) Register(c *gin.Context) {
@@ -20,7 +19,7 @@ func (h Handler) Register(c *gin.Context) {
 
 	// Save the user to the database, hashing the password, and return the user
 	if err := user.Save(h.db); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -69,6 +68,9 @@ func (h Handler) Login(c *gin.Context) {
 	c.Header("Access-Token", accessToken)
 	c.Header("Refresh-Token", refreshToken)
 
+	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", false, true)
+	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", false, true)
+
 	// Remove the password from the response
 	user.Password = ""
 	c.JSON(http.StatusOK, gin.H{
@@ -79,9 +81,8 @@ func (h Handler) Login(c *gin.Context) {
 }
 
 func (h Handler) Refresh(c *gin.Context) {
-	refreshToken := c.Query("refresh_token")
-
-	if refreshToken == "" {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil || refreshToken == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required"})
 		return
 	}
@@ -99,6 +100,9 @@ func (h Handler) Refresh(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", false, true)
+	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", false, true)
+
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
 	})
@@ -106,18 +110,14 @@ func (h Handler) Refresh(c *gin.Context) {
 
 func (h Handler) Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+		// Get the access token from the cookie
+		token, err := c.Cookie("access_token")
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Access token cookie is required"})
 			return
 		}
 
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Bearer token is required"})
-			return
-		}
-
+		// Validate the access token
 		userID, err := security.ValidateAccessToken(token)
 		if err != nil {
 			log.Printf("Error validating access token: %v", err)
@@ -125,6 +125,7 @@ func (h Handler) Authorize() gin.HandlerFunc {
 			return
 		}
 
+		// Set the user ID in the context
 		c.Set("userID", userID)
 		c.Next()
 	}
