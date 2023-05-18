@@ -36,7 +36,16 @@ func SetupDatabase() (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database after 10 attempts: %w", err)
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(
+		&models.User{},
+		&models.Location{},
+		&models.Message{},
+		&models.Photo{},
+		&models.Plant{},
+		&models.PlantHistory{},
+		&models.Advice{},
+		&models.Species{},
+	)
 	if err != nil {
 		fmt.Printf("Failed to migrate database schema: %v\n", err)
 		return nil, err

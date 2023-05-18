@@ -6,14 +6,14 @@ import (
 
 type Plant struct {
 	gorm.Model
-	Name             string `json:"name" gorm:"type:varchar(100);not null"`
-	Type             string `json:"type" gorm:"type:varchar(100);not null"`
-	Description      string `json:"description" gorm:"type:varchar(255);not null"`
-	CareInstructions string `json:"care_instructions" gorm:"type:varchar(255);not null"`
-	UserID           uint   `json:"user_id" gorm:"not null"`
-	PlantHistories   []PlantHistory
-	PlantAdvices     []PlantAdvice
-	Photos           []Photo
+	SpeciesID      uint           `json:"species_id"`
+	Species        Species        `json:"species" gorm:"foreignKey:SpeciesID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	PlantHistories []PlantHistory `json:"plant_histories" gorm:"foreignKey:PlantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	PlantAdvices   []Advice       `json:"plant_advices" gorm:"foreignKey:PlantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Photos         []Photo        `json:"photos" gorm:"foreignKey:PlantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	LocationID     uint           `json:"location_id"`
+	Location       Location       `json:"location" gorm:"foreignKey:LocationID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserID         uint           `json:"user_id"` // Add this line
 }
 
 func (p *Plant) Save(db *gorm.DB) error {
