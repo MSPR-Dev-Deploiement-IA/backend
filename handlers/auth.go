@@ -27,7 +27,7 @@ func (h Handler) Register(c *gin.Context) {
 	user.Password = ""
 
 	// Return the user
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusCreated, gin.H{"user": user})
 }
 
 func (h Handler) Login(c *gin.Context) {
@@ -68,8 +68,9 @@ func (h Handler) Login(c *gin.Context) {
 	c.Header("Access-Token", accessToken)
 	c.Header("Refresh-Token", refreshToken)
 
-	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", false, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", false, true)
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", true, true)
+	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", true, true)
 
 	// Remove the password from the response
 	user.Password = ""
@@ -106,27 +107,4 @@ func (h Handler) Refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
 	})
-}
-
-func (h Handler) Authorize() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Get the access token from the cookie
-		token, err := c.Cookie("access_token")
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Access token cookie is required"})
-			return
-		}
-
-		// Validate the access token
-		userID, err := security.ValidateAccessToken(token)
-		if err != nil {
-			log.Printf("Error validating access token: %v", err)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token"})
-			return
-		}
-
-		// Set the user ID in the context
-		c.Set("userID", userID)
-		c.Next()
-	}
 }

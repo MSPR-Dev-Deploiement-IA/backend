@@ -3,11 +3,10 @@ package main
 import (
 	"backend/database"
 	"backend/handlers"
-	"log"
-
-	"github.com/gin-contrib/cors"
+	"backend/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"log"
 )
 
 func main() {
@@ -16,15 +15,18 @@ func main() {
 	if err != nil {
 		log.Println("Error loading .env file -- ignore if prod")
 	}
+
 	db, err := database.SetupDatabase()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	router := gin.Default()
-
-	router.Use(cors.Default())
 
 	h := handlers.Newhandler(db)
+	m := middlewares.NewMiddleware(db)
+
+	router := gin.Default()
+
+	router.Use(m.CORSMiddleware())
 
 	auth := router.Group("/auth")
 	{
@@ -34,7 +36,7 @@ func main() {
 	}
 
 	api := router.Group("/api")
-	api.Use(h.Authorize())
+	api.Use(m.Authorize())
 	{
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
