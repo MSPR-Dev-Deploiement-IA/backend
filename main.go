@@ -40,6 +40,7 @@ func main() {
 	{
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
+		api.GET("/users/me", h.GetCurrentUser)
 	}
 
 	err = router.Run()
