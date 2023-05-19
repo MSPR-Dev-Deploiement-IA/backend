@@ -5,6 +5,7 @@ import (
 	"backend/handlers"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -13,13 +14,15 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Error loading .env file -- ignore if prod")
 	}
 	db, err := database.SetupDatabase()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	router := gin.Default()
+
+	router.Use(cors.Default())
 
 	h := handlers.Newhandler(db)
 
