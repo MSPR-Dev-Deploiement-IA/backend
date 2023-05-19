@@ -1,13 +1,82 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"gorm.io/gorm"
+	"io"
+	"net/http"
+	"net/url"
+	"strconv"
 )
 
 type Location struct {
 	gorm.Model
+	Address   string  `json:"address" gorm:"type:varchar(255);not null"`
+	City      string  `json:"city" gorm:"type:varchar(255);not null"`
+	ZipCode   string  `json:"zip_code" gorm:"type:varchar(255);not null"`
+	Country   string  `json:"country" gorm:"type:varchar(255);not null"`
 	Latitude  float64 `json:"latitude" gorm:"not null"`
 	Longitude float64 `json:"longitude" gorm:"not null"`
+}
+
+func CalculateAndSaveLatLon(l Location) (float64, float64, error) {
+	address := l.Address + " " + l.City + " " + l.ZipCode + " " + l.Country
+
+	baseURL := "https://nominatim.openstreetmap.org/search"
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	params := url.Values{}
+	params.Add("q", address)
+	params.Add("format", "json")
+	u.RawQuery = params.Encode()
+
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return 0, 0, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	var responseJson []map[string]interface{}
+	err = json.Unmarshal(body, &responseJson)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	fmt.Println(len(responseJson))
+
+	if len(responseJson) > 0 {
+		firstItem := responseJson[0]
+
+		fmt.Println(firstItem)
+
+		latString := firstItem["lat"]
+		lonString := firstItem["lon"]
+
+		lat, err := strconv.ParseFloat(latString.(string), 64)
+		lon, err := strconv.ParseFloat(lonString.(string), 64)
+		if err != nil {
+			return 0, 0, err
+		}
+
+		return lat, lon, err
+	}
+	fmt.Println("No data available")
+	return 0, 0, err
+
 }
 
 type LocationRepository struct {

@@ -29,6 +29,8 @@ func main() {
 
 	router.Use(m.CORSMiddleware())
 
+	router.GET("/tests", h.Tests)
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/register", h.Register)
@@ -44,6 +46,7 @@ func main() {
 		api.GET("/users/me", h.GetCurrentUser)
 
 		api.POST("/upload", h.Plant)
+
 	}
 
 	err = router.Run()
