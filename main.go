@@ -4,9 +4,10 @@ import (
 	"backend/database"
 	"backend/handlers"
 	"backend/middlewares"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"log"
 )
 
 func main() {
@@ -41,6 +42,8 @@ func main() {
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
 		api.GET("/users/me", h.GetCurrentUser)
+
+		api.POST("/upload", h.Plant)
 	}
 
 	err = router.Run()
