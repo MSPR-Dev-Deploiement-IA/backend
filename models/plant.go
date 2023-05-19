@@ -14,6 +14,7 @@ type Plant struct {
 	LocationID     uint           `json:"location_id"`
 	Location       Location       `json:"location" gorm:"foreignKey:LocationID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID         uint           `json:"user_id"` // Add this line
+	Description    string         `json:"description"`
 }
 
 func (p *Plant) Save(db *gorm.DB) error {
