@@ -52,8 +52,9 @@ func (s *Species) GetData() error {
 	// This assumes that the first result in the Trefle API response is the correct species
 	if len(trefleResp.Data) > 0 {
 		s.Scientific = trefleResp.Data[0].ScientificName
-		s.CommonName = trefleResp.Data[0].CommonName
 	}
+
+	fmt.Println("Scientific name", s.Scientific+" "+s.CommonName)
 
 	return nil
 }

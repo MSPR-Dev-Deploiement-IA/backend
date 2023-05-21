@@ -22,13 +22,13 @@ type Location struct {
 	UserID    uint    `json:"user_id" gorm:"not null"`
 }
 
-func (l Location) CalculateLatLon() error {
+func (l Location) CalculateLatLon() (float64, float64, error) {
 	address := l.Address + " " + l.City + " " + l.ZipCode + " " + l.Country
 
 	baseURL := "https://nominatim.openstreetmap.org/search"
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	params := url.Values{}
@@ -38,7 +38,7 @@ func (l Location) CalculateLatLon() error {
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -49,21 +49,17 @@ func (l Location) CalculateLatLon() error {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	var responseJson []map[string]interface{}
 	err = json.Unmarshal(body, &responseJson)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
-
-	fmt.Println(len(responseJson))
 
 	if len(responseJson) > 0 {
 		firstItem := responseJson[0]
-
-		fmt.Println(firstItem)
 
 		latString := firstItem["lat"]
 		lonString := firstItem["lon"]
@@ -75,14 +71,14 @@ func (l Location) CalculateLatLon() error {
 		l.Longitude = lon
 
 		if err != nil {
-			return err
+			return 0, 0, err
 		}
 
-		return err
+		return lat, lon, nil
 	}
-	fmt.Println("No data available")
-	return err
 
+	fmt.Println("No data available")
+	return 0, 0, err
 }
 
 type LocationRepository struct {

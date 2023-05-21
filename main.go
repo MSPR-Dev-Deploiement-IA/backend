@@ -29,8 +29,6 @@ func main() {
 
 	router.Use(m.CORSMiddleware())
 
-	router.GET("/tests", h.Tests)
-
 	auth := router.Group("/auth")
 	{
 		auth.POST("/register", h.Register)
@@ -52,7 +50,9 @@ func main() {
 
 		plants := api.Group("/plants")
 		{
+			plants.GET("/", h.GetPlants)
 			plants.POST("/add", h.AddPlant)
+			plants.POST("/upload/:plant_id", h.UploadPlantFile)
 		}
 
 		species := api.Group("/species")
