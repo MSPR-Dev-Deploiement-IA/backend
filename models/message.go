@@ -10,8 +10,8 @@ type Message struct {
 	gorm.Model
 	MessageText string    `json:"message_text" gorm:"type:varchar(255);not null"`
 	Timestamp   time.Time `json:"timestamp" gorm:"not null"`
-	SenderID    uint      `json:"sender_id"` // Add this line
-	ReceiverID  uint      `json:"receiver_id"`
+	UserID      uint      `json:"user_id" gorm:"not null"`
+	User        User      `json:"user" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type MessageRepository struct {
