@@ -157,9 +157,10 @@ func (h Handler) GetPlants(c *gin.Context) {
 func (h Handler) UploadPlantFile(c *gin.Context) {
 	userId := c.MustGet("userID").(uint)
 
-	plantIdString := c.Param("plantId")
+	plantIdString := c.Query("plantId")
 	plantId, err := strconv.Atoi(plantIdString)
 	if err != nil {
+		fmt.Println("Error converting plantId string to integer: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -168,18 +169,21 @@ func (h Handler) UploadPlantFile(c *gin.Context) {
 	result := h.db.Where("id = ? AND user_id = ?", plantId, userId).First(&plant)
 
 	if result.Error != nil {
+		fmt.Println("Error retrieving plant from database: ", result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
 
 	if plant.ID == 0 {
+		fmt.Println("No plant found with the provided id")
 		c.JSON(http.StatusNotFound, gin.H{"error": "Plant not found"})
 		return
 	}
 
-	//	Get multiple files and uplaod to /uploads in the server
+	//	Get multiple files and upload to /uploads in the server
 	form, err := c.MultipartForm()
 	if err != nil {
+		fmt.Println("Error retrieving multipart form: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -192,6 +196,7 @@ func (h Handler) UploadPlantFile(c *gin.Context) {
 		// Upload the file to specific dst.
 		err := c.SaveUploadedFile(file, "./uploads/"+file.Filename)
 		if err != nil {
+			fmt.Println("Error saving uploaded file: ", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -203,6 +208,7 @@ func (h Handler) UploadPlantFile(c *gin.Context) {
 		result := h.db.Create(&photo)
 
 		if result.Error != nil {
+			fmt.Println("Error saving photo in the database: ", result.Error)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
 		}

@@ -39,6 +39,7 @@ func main() {
 	api := router.Group("/api")
 	api.Use(m.Authorize())
 	{
+		api.Static("/static", "./uploads")
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
 
@@ -52,7 +53,7 @@ func main() {
 		{
 			plants.GET("/", h.GetPlants)
 			plants.POST("/add", h.AddPlant)
-			plants.POST("/upload/:plant_id", h.UploadPlantFile)
+			plants.POST("/upload", h.UploadPlantFile)
 		}
 
 		species := api.Group("/species")
