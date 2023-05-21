@@ -43,10 +43,34 @@ func main() {
 	{
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
-		api.GET("/users/me", h.GetCurrentUser)
 
-		api.POST("/upload", h.Plant)
+		users := api.Group("/users")
+		{
+			//users.GET("/", h.GetUsers)
+			users.GET("/me", h.GetCurrentUser)
+		}
 
+		plants := api.Group("/plants")
+		{
+			plants.POST("/add", h.AddPlant)
+		}
+
+		species := api.Group("/species")
+		{
+			species.GET("/", h.GetSpecies)
+			species.GET("/:commonName", h.GetSpeciesByCommonName)
+		}
+
+		locations := api.Group("/locations")
+		{
+			locations.GET("/", h.GetUserLocations)
+		}
+
+		messages := api.Group("/messages")
+		{
+			messages.GET("/", h.GetAllMessages)
+			messages.POST("/add", h.PostMessage)
+		}
 	}
 
 	err = router.Run()

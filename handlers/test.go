@@ -13,14 +13,11 @@ func (h Handler) Tests(c *gin.Context) {
 		return
 	}
 
-	lat, lon, err := models.CalculateAndSaveLatLon(location)
+	err = location.CalculateLatLon()
 	if err != nil {
 		c.JSON(400, gin.H{"error calculating lat lon": err.Error()})
 		return
 	}
-
-	location.Latitude = lat
-	location.Longitude = lon
 
 	tx := h.db.Create(&location)
 	if tx.Error != nil {

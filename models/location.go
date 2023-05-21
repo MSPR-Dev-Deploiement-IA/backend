@@ -12,21 +12,23 @@ import (
 
 type Location struct {
 	gorm.Model
+	Name      string  `json:"name" gorm:"type:varchar(255);not null"`
 	Address   string  `json:"address" gorm:"type:varchar(255);not null"`
 	City      string  `json:"city" gorm:"type:varchar(255);not null"`
 	ZipCode   string  `json:"zip_code" gorm:"type:varchar(255);not null"`
 	Country   string  `json:"country" gorm:"type:varchar(255);not null"`
 	Latitude  float64 `json:"latitude" gorm:"not null"`
 	Longitude float64 `json:"longitude" gorm:"not null"`
+	UserID    uint    `json:"user_id" gorm:"not null"`
 }
 
-func CalculateAndSaveLatLon(l Location) (float64, float64, error) {
+func (l Location) CalculateLatLon() error {
 	address := l.Address + " " + l.City + " " + l.ZipCode + " " + l.Country
 
 	baseURL := "https://nominatim.openstreetmap.org/search"
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 
 	params := url.Values{}
@@ -36,7 +38,7 @@ func CalculateAndSaveLatLon(l Location) (float64, float64, error) {
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -47,13 +49,13 @@ func CalculateAndSaveLatLon(l Location) (float64, float64, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 
 	var responseJson []map[string]interface{}
 	err = json.Unmarshal(body, &responseJson)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
 
 	fmt.Println(len(responseJson))
@@ -68,14 +70,18 @@ func CalculateAndSaveLatLon(l Location) (float64, float64, error) {
 
 		lat, err := strconv.ParseFloat(latString.(string), 64)
 		lon, err := strconv.ParseFloat(lonString.(string), 64)
+
+		l.Latitude = lat
+		l.Longitude = lon
+
 		if err != nil {
-			return 0, 0, err
+			return err
 		}
 
-		return lat, lon, err
+		return err
 	}
 	fmt.Println("No data available")
-	return 0, 0, err
+	return err
 
 }
 

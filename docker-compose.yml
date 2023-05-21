@@ -16,18 +16,18 @@ services:
       - ${ADMINER_PORT}:8080
 
 
-  backend:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=mydb
-    ports:
-      - ${BACKEND_PORT}:8080
+#  backend:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    environment:
+#      - DB_HOST=db
+#      - DB_PORT=5432
+#      - POSTGRES_USER=myuser
+#      - POSTGRES_PASSWORD=mypassword
+#      - POSTGRES_DB=mydb
+#    ports:
+#      - ${BACKEND_PORT}:8080
 
 volumes:
   db-data:

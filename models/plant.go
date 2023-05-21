@@ -6,6 +6,7 @@ import (
 
 type Plant struct {
 	gorm.Model
+	Name           string         `json:"name"`
 	SpeciesID      uint           `json:"species_id"`
 	Species        Species        `json:"species" gorm:"foreignKey:SpeciesID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	PlantHistories []PlantHistory `json:"plant_histories" gorm:"foreignKey:PlantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

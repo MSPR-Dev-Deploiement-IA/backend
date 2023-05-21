@@ -7,14 +7,15 @@ import (
 
 type User struct {
 	gorm.Model
-	Name      string    `json:"name" gorm:"type:varchar(100);not null"`
-	Email     string    `json:"email" gorm:"type:varchar(100);unique;not null"`
-	Password  string    `json:"password" gorm:"not null"`
-	Plants    []Plant   `json:"plants" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Favorites []Plant   `json:"favorites" gorm:"many2many:user_favorites;"`
-	Sends     []Message `json:"sends" gorm:"foreignKey:SenderID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Receives  []Message `json:"receives" gorm:"foreignKey:ReceiverID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Keeps     []Plant   `json:"keeps" gorm:"many2many:user_keeps;"`
+	Name      string     `json:"name" gorm:"type:varchar(100);not null"`
+	Email     string     `json:"email" gorm:"type:varchar(100);unique;not null"`
+	Password  string     `json:"password" gorm:"not null"`
+	Plants    []Plant    `json:"plants" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Favorites []Plant    `json:"favorites" gorm:"many2many:user_favorites;"`
+	Sends     []Message  `json:"sends" gorm:"foreignKey:SenderID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Receives  []Message  `json:"receives" gorm:"foreignKey:ReceiverID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Keeps     []Plant    `json:"keeps" gorm:"many2many:user_keeps;"`
+	Locations []Location `json:"locations" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (u *User) Save(db *gorm.DB) error {
