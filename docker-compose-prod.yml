@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - ${ADMINER_PORT}:8080
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydb
+    ports:
+      - "8080:8080"
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    environment:
+      - PUBLIC_BACKEND=http://localhost:${BACKEND_PORT}
+    ports:
+        - "80:3000"
+
+volumes:
+  db-data:
+  nominatim-data:
