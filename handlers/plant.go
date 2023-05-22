@@ -5,24 +5,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"log"
 	"net/http"
 	"strconv"
 )
-
-func (h Handler) Plant(c *gin.Context) {
-	file, _ := c.FormFile("file")
-	log.Println(file.Filename)
-
-	// Save the file to a specific destination
-	// Here, the file is being saved in the current directory
-	if err := c.SaveUploadedFile(file, file.Filename); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
-}
 
 func (h Handler) AddPlant(c *gin.Context) {
 	var responseJson gin.H
@@ -213,4 +198,30 @@ func (h Handler) UploadPlantFile(c *gin.Context) {
 			return
 		}
 	}
+}
+
+func (h Handler) GetPlantById(c *gin.Context) {
+	plantIdString := c.Param("plantId")
+	plantId, err := strconv.Atoi(plantIdString)
+	if err != nil {
+		fmt.Println("Error converting plantId string to integer: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var plant models.Plant
+	result := h.db.Where("id = ?", plantId).Preload("Species").Preload("Location").Preload("Photos").First(&plant)
+	if result.Error != nil {
+		fmt.Println("Error retrieving plant from database: ", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	if plant.ID == 0 {
+		fmt.Println("No plant found with the provided id")
+		c.JSON(http.StatusNotFound, gin.H{"error": "Plant not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"plant": plant})
 }
