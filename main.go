@@ -28,15 +28,16 @@ func main() {
 	router := gin.Default()
 
 	router.Use(m.CORSMiddleware())
+	backend := router.Group("/backend")
 
-	auth := router.Group("/auth")
+	auth := backend.Group("/auth")
 	{
 		auth.POST("/register", h.Register)
 		auth.POST("/login", h.Login)
 		auth.POST("/refresh", h.Refresh)
 	}
 
-	api := router.Group("/api")
+	api := backend.Group("/api")
 	api.Use(m.Authorize())
 	{
 		api.Static("/static", "./uploads")
