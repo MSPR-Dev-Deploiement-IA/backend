@@ -188,7 +188,7 @@ func (h Handler) UploadPlantFile(c *gin.Context) {
 
 		var photo models.Photo
 		photo.PhotoFileUrl = file.Filename
-		photo.PlantID = plant.ID
+		photo.PlantID = &plant.ID
 		photo.UserID = userId
 		result := h.db.Create(&photo)
 

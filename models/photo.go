@@ -6,8 +6,8 @@ import (
 
 type Photo struct {
 	gorm.Model
-	PlantID      uint   `json:"plant_id"`
-	Plant        Plant  `json:"plant" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	PlantID      *uint  `json:"plant_id" gorm:"type:bigint"`
+	Plant        *Plant `json:"plant" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID       uint   `json:"user_id"`
 	User         User   `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	PhotoFileUrl string `json:"photo_file_url" gorm:"type:varchar(255);not null,unique"`

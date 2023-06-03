@@ -29,7 +29,7 @@ func main() {
 
 	router.Use(m.CORSMiddleware())
 	backend := router.Group("/backend")
-
+	backend.Static("/static", "./uploads")
 	auth := backend.Group("/auth")
 	{
 		auth.POST("/register", h.Register)
@@ -40,7 +40,7 @@ func main() {
 	api := backend.Group("/api")
 	api.Use(m.Authorize())
 	{
-		api.Static("/static", "./uploads")
+
 		api.GET("/hello", h.HelloHandler)
 		// Add more secured routes here
 
