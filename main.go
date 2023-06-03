@@ -74,6 +74,12 @@ func main() {
 			messages.GET("/", h.GetAllMessages)
 			messages.POST("/add", h.PostMessage)
 		}
+
+		photos := api.Group("/photos")
+		{
+			photos.POST("/", h.UploadFile)
+			photos.GET("/", h.GetFileByUserId)
+		}
 	}
 
 	err = router.Run()
