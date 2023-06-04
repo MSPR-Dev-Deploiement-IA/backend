@@ -3,10 +3,12 @@ package handlers
 import (
 	"backend/models"
 	"backend/security"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (h Handler) Register(c *gin.Context) {
@@ -32,6 +34,9 @@ func (h Handler) Register(c *gin.Context) {
 
 func (h Handler) Login(c *gin.Context) {
 	var user models.User
+
+	domain := os.Getenv("DOMAIN")
+
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -68,9 +73,9 @@ func (h Handler) Login(c *gin.Context) {
 	c.Header("Access-Token", accessToken)
 	c.Header("Refresh-Token", refreshToken)
 
-	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", true, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", true, true)
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("access_token", accessToken, 3600, "/", domain, true, true)
+	c.SetCookie("refresh_token", refreshToken, 3600, "/", domain, true, true)
 
 	// Remove the password from the response
 	user.Password = ""
@@ -83,6 +88,8 @@ func (h Handler) Login(c *gin.Context) {
 
 func (h Handler) Refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
+	domain := os.Getenv("DOMAIN")
+
 	if err != nil || refreshToken == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required"})
 		return
@@ -101,8 +108,9 @@ func (h Handler) Refresh(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("access_token", accessToken, 3600, "/", "localhost", false, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", false, true)
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("access_token", accessToken, 3600, "/", domain, false, true)
+	c.SetCookie("refresh_token", refreshToken, 3600, "/", domain, false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
