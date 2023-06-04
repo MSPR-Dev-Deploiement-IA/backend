@@ -56,6 +56,7 @@ func main() {
 			plants.POST("/add", h.AddPlant)
 			plants.POST("/upload", h.UploadPlantFile)
 			plants.GET("/:plantId", h.GetPlantById)
+			plants.GET("/user/:userId", h.GetPlantsByUser)
 		}
 
 		species := api.Group("/species")
