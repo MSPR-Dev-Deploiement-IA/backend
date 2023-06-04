@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,19 +22,6 @@ func (h Handler) AddPlant(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "userId not found"})
 		return
 	}
-
-	// Example of json sent
-	//{
-	//	"name": "Test",
-	//	"description": "aeazeaze",
-	//	"newSpecies": "Tespece",
-	//	"newAddress": {
-	//		"address": "32 rue de cénac, C34",
-	//			"zipCode": "33100",
-	//			"city": "Bordeaux",
-	//			"country": "FR"
-	//		}
-	//	}
 
 	if err := c.ShouldBindJSON(&responseJson); err != nil {
 		fmt.Println("Error while binding json")
@@ -102,6 +90,27 @@ func (h Handler) AddPlant(c *gin.Context) {
 	newPlant.UserID = userId
 	newPlant.Species = species
 	newPlant.Location = address
+
+	const layoutISO = "2006-01-02T15:04:05.000Z"
+	startDateStr := responseJson["start_date"].(string)
+	endDateStr := responseJson["end_date"].(string)
+
+	startDate, parseErr := time.Parse(layoutISO, startDateStr)
+	if parseErr != nil {
+		fmt.Println("Error while parsing start_date")
+		c.JSON(http.StatusBadRequest, gin.H{"error": parseErr.Error()})
+		return
+	}
+
+	endDate, parseErr := time.Parse(layoutISO, endDateStr)
+	if parseErr != nil {
+		fmt.Println("Error while parsing end_date")
+		c.JSON(http.StatusBadRequest, gin.H{"error": parseErr.Error()})
+		return
+	}
+
+	newPlant.StartDate = startDate
+	newPlant.EndDate = endDate
 
 	result := h.db.Create(&newPlant)
 

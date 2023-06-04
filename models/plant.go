@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -16,6 +18,8 @@ type Plant struct {
 	Location       Location       `json:"location" gorm:"foreignKey:LocationID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID         uint           `json:"user_id"` // Add this line
 	Description    string         `json:"description"`
+	StartDate      time.Time      `json:"start_date" gorm:"not null"`
+	EndDate        time.Time      `json:"end_date" gorm:"not null"`
 }
 
 func (p *Plant) Save(db *gorm.DB) error {
