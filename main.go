@@ -87,6 +87,11 @@ func main() {
 			history.POST("/", h.CreatePlantHistory)
 			history.GET("/:id", h.GetPlantHistory)
 		}
+
+		botanist := api.Group("/botanist")
+		{
+			botanist.POST("/", h.BecomeBotanist)
+		}
 	}
 
 	err = router.Run()

@@ -45,6 +45,7 @@ func SetupDatabase() (*gorm.DB, error) {
 		&models.PlantHistory{},
 		&models.Advice{},
 		&models.Species{},
+		&models.BecomeBotanist{},
 	)
 	if err != nil {
 		fmt.Printf("Failed to migrate database schema: %v\n", err)
