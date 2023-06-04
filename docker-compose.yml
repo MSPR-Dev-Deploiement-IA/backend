@@ -23,6 +23,8 @@ services:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=mydb
+    env_file:
+      - .env
     ports:
       - ${BACKEND_PORT}:8080
 
