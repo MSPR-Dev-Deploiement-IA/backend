@@ -231,3 +231,31 @@ func (h Handler) GetPlantById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"plant": plant})
 }
+
+func (h Handler) GetPlantsByUser(c *gin.Context) {
+	userIdString := c.Param("userId")
+	userId, err := strconv.Atoi(userIdString)
+	if err != nil {
+		fmt.Println("Error converting userId string to integer: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var plants []models.Plant
+	// Preload PlantHistories, PlantAdvices, Photos, Location
+	result := h.db.Where("user_id = ?", userId).
+		Preload("Species").
+		Preload("PlantHistories").
+		Preload("PlantAdvices").
+		Preload("Photos").
+		Preload("Location").
+		Find(&plants)
+
+	if result.Error != nil {
+		fmt.Println("Error retrieving plants from database: ", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"plants": plants})
+}

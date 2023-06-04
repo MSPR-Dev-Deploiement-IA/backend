@@ -2,12 +2,10 @@ package handlers
 
 import (
 	"backend/models"
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func (h Handler) CreatePlantHistory(c *gin.Context) {
@@ -40,20 +38,22 @@ func (h Handler) GetPlantHistory(c *gin.Context) {
 		return
 	}
 
-	// Create a PlantHistory object to hold the result.
-	var plantHistory models.PlantHistory
+	// Create a slice of PlantHistory objects to hold the result.
+	var plantHistories []models.PlantHistory
 
-	// Use GORM's First method to find the first record with the given ID.
-	err = h.db.First(&plantHistory, id).Error
+	// Use GORM's Find method to find all records with the given plant ID.
+	err = h.db.Find(&plantHistories, "plant_id = ?", id).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Plant history not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Return the plant history as JSON.
-	c.JSON(http.StatusOK, plantHistory)
+	// If no records were found, return a 404.
+	if len(plantHistories) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No plant history found"})
+		return
+	}
+
+	// Return the plant histories as JSON.
+	c.JSON(http.StatusOK, plantHistories)
 }
