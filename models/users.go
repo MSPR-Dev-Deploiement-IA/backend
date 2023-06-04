@@ -17,6 +17,7 @@ type User struct {
 	PlantHistories  []PlantHistory `json:"plant_histories" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Locations       []Location     `json:"locations" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	BotanistProfile BecomeBotanist `json:"botanist_profile" gorm:"foreignKey:UserID"`
+	IsBotanist      bool           `json:"is_botanist" gorm:"default:false"`
 }
 
 func (u *User) Save(db *gorm.DB) error {

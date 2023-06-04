@@ -63,6 +63,7 @@ func main() {
 		{
 			species.GET("/", h.GetSpecies)
 			species.GET("/:commonName", h.GetSpeciesByCommonName)
+			species.GET("/scientific/:scientific", h.GetSpeciesByScientific)
 		}
 
 		locations := api.Group("/locations")
@@ -91,6 +92,11 @@ func main() {
 		botanist := api.Group("/botanist")
 		{
 			botanist.POST("/", h.BecomeBotanist)
+		}
+
+		advice := api.Group("/advice")
+		{
+			advice.POST("/", h.PostAdvice)
 		}
 	}
 
