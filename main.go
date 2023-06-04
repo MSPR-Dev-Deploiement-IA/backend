@@ -80,6 +80,12 @@ func main() {
 			photos.POST("/", h.UploadFile)
 			photos.GET("/", h.GetFileByUserId)
 		}
+
+		history := api.Group("/history")
+		{
+			history.POST("/", h.CreatePlantHistory)
+			history.GET("/:id", h.GetPlantHistory)
+		}
 	}
 
 	err = router.Run()

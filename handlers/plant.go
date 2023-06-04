@@ -3,17 +3,21 @@ package handlers
 import (
 	"backend/models"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func (h Handler) AddPlant(c *gin.Context) {
 	var responseJson gin.H
 
+	fmt.Println("AddPlant")
+
 	userId, err := c.MustGet("userID").(uint)
 	if !err {
+		fmt.Println("userId not found")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "userId not found"})
 		return
 	}
@@ -32,6 +36,7 @@ func (h Handler) AddPlant(c *gin.Context) {
 	//	}
 
 	if err := c.ShouldBindJSON(&responseJson); err != nil {
+		fmt.Println("Error while binding json")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -44,6 +49,7 @@ func (h Handler) AddPlant(c *gin.Context) {
 		species.CommonName = responseJson["newSpecies"].(string)
 		err := species.GetData()
 		if err != nil {
+			fmt.Println("Error while getting species data")
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
