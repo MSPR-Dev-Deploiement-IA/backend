@@ -1,6 +1,6 @@
 version: 2
 updates:
-- package-ecosystem: gomod
+- package-ecosystem: "gomod"
   target-branch: "main" 
   directory: "/"
   schedule: 
