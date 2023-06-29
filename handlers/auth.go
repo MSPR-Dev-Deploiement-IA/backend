@@ -5,7 +5,6 @@ import (
 	"backend/security"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -34,8 +33,6 @@ func (h Handler) Register(c *gin.Context) {
 
 func (h Handler) Login(c *gin.Context) {
 	var user models.User
-
-	domain := os.Getenv("DOMAIN")
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -69,14 +66,6 @@ func (h Handler) Login(c *gin.Context) {
 		return
 	}
 
-	// Add the tokens to the response headers
-	c.Header("Access-Token", accessToken)
-	c.Header("Refresh-Token", refreshToken)
-
-	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("access_token", accessToken, 3600, "/", domain, true, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", domain, true, true)
-
 	// Remove the password from the response
 	user.Password = ""
 	c.JSON(http.StatusOK, gin.H{
@@ -87,10 +76,9 @@ func (h Handler) Login(c *gin.Context) {
 }
 
 func (h Handler) Refresh(c *gin.Context) {
-	refreshToken, err := c.Cookie("refresh_token")
-	domain := os.Getenv("DOMAIN")
+	refreshToken := c.Request.Header.Get("Refresh-Token")
 
-	if err != nil || refreshToken == "" {
+	if refreshToken == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required"})
 		return
 	}
@@ -107,10 +95,6 @@ func (h Handler) Refresh(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
 		return
 	}
-
-	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("access_token", accessToken, 3600, "/", domain, false, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", domain, false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
