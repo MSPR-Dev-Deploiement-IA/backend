@@ -2,22 +2,30 @@ package middlewares
 
 import (
 	"backend/security"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (m Middleware) Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the access token from the cookie
-		token, err := c.Cookie("access_token")
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Access token cookie is required"})
+		// Get the access token from the Authorization header
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header not provided"})
+			return
+		}
+
+		splitToken := strings.Split(authHeader, "Bearer ")
+		if len(splitToken) != 2 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization token format"})
 			return
 		}
 
 		// Validate the access token
-		userID, err := security.ValidateAccessToken(token)
+		userID, err := security.ValidateAccessToken(splitToken[1])
 		if err != nil {
 			log.Printf("Error validating access token: %v", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token"})

@@ -8,6 +8,15 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  logdb:
+    image: postgres:latest
+    env_file:
+      - .env
+    ports:
+      - ${LOGDB_PORT}:5432
+    volumes:
+      - log-db-data:/var/lib/postgresql/data
+
   adminer:
     image: adminer:latest
     ports:
@@ -31,3 +40,4 @@ services:
 volumes:
   db-data:
   nominatim-data:
+  log-db-data:
