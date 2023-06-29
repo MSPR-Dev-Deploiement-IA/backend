@@ -8,15 +8,6 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
-  logdb:
-    image: postgres:latest
-    env_file:
-      - .env
-    ports:
-      - ${LOGDB_PORT}:5432
-    volumes:
-      - log-db-data:/var/lib/postgresql/data
-
   adminer:
     image: adminer:latest
     ports:
@@ -36,6 +27,16 @@ services:
       - .env
     ports:
       - ${BACKEND_PORT}:8080
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    volumes:
+      - grafana_data:/var/lib/grafana
 
 volumes:
   db-data:
