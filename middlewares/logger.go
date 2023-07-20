@@ -32,10 +32,11 @@ func (m Middleware) Logger() gin.HandlerFunc {
 		path := c.Request.URL.Path
 
 		// if ip is already stored in db, use it, otherwise get it from request
-		ip := models.IP{IP: clientIP}
-		err := ip.FirstOrCreate(m.db)
+		ip := &models.IP{IP: clientIP}
+		ip, err := ip.FirstOrCreate(m.db)
 		if err != nil {
 			logger.Println("Error occurred during IP geolocation: ", err)
+			return
 		}
 
 		log := models.Log{

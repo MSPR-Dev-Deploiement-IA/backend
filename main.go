@@ -28,6 +28,8 @@ func main() {
 	router := gin.Default()
 
 	router.Use(m.CORSMiddleware())
+	router.Use(m.Logger())
+
 	backend := router.Group("/backend")
 	backend.Static("/static", "./uploads")
 	auth := backend.Group("/auth")

@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -25,7 +26,7 @@ type IPAPIResponse struct {
 func (ip *IP) CalculateLatLon() error {
 	resp, err := http.Get("http://ip-api.com/json/" + ip.IP)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to make HTTP request to IP-API: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -33,16 +34,16 @@ func (ip *IP) CalculateLatLon() error {
 
 	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to decode IP-API response: %w", err)
 	}
 
 	if apiResponse.Status == "fail" {
-		if apiResponse.Message == "reserved range" {
+		if apiResponse.Message == "reserved range" || apiResponse.Message == "private range" {
 			ip.Lat = 0
 			ip.Lon = 0
 			return nil
 		} else {
-			return errors.New(apiResponse.Message)
+			return fmt.Errorf("IP-API returned fail status: %s", apiResponse.Message)
 		}
 	}
 
@@ -52,16 +53,19 @@ func (ip *IP) CalculateLatLon() error {
 	return nil
 }
 
-func (ip *IP) FirstOrCreate(db *gorm.DB) error {
+func (ip *IP) FirstOrCreate(db *gorm.DB) (*IP, error) {
 	result := db.First(ip, "ip = ?", ip.IP)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		err := ip.CalculateLatLon()
 		if err != nil {
-			return err
+			return nil, fmt.Errorf("failed to calculate Lat and Lon for IP %s: %w", ip.IP, err)
 		}
-		db.Create(ip)
+		result = db.Create(ip)
+		if result.Error != nil {
+			return nil, fmt.Errorf("failed to create IP record in database: %w", result.Error)
+		}
 	} else if result.Error != nil {
-		return result.Error
+		return nil, fmt.Errorf("database error when trying to find IP record: %w", result.Error)
 	}
-	return nil
+	return ip, nil
 }
