@@ -42,3 +42,4 @@ volumes:
   db-data:
   nominatim-data:
   log-db-data:
+  grafana_data:
